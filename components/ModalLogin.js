@@ -12,6 +12,7 @@ import { BlurView } from 'expo-blur';
 import { connect } from 'react-redux';
 import SuccessLoader from './Success';
 import Loader from './Loader';
+import firebase from './Firebase';
 
 const screenHeight = Dimensions.get('window').height;
 
@@ -93,9 +94,16 @@ class ModalLogin extends Component {
       isLoading: true
     })
 
-    setTimeout(() => {
+    firebase
+      .auth()
+      .signInWithEmailAndPassword(email, password)
+      .catch(err => {
+        Alert.alert('Error', err.message)
+      })
+      .then(res => {
+        console.log('res :>> ', res);
+        if (res) {
       this.setState({
-        isLoading: false,
         isSuccessful: true
       })
       Alert.alert('Congrats', 'You have successfully log in');
@@ -104,7 +112,9 @@ class ModalLogin extends Component {
         this.props.closeLogin();
         this.setState({ isSuccessful: false })
       }, 1000)
-    }, 2000)
+        }
+        this.setState({ isLoading: false })
+      })
   }
 
   focusEmail = () => {
